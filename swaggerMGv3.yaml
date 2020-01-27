@@ -1,0 +1,290 @@
+---
+swagger: "2.0"
+info:
+  description: タスク名、締め切り、会社名
+  version: 1.0.0
+  title: 仕事の組織
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Morvan Guillaume
+    url: https://github.com/DevF-Gui/DEV-API
+    email: Morvan.guillaume73@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: virtserver.swaggerhub.com
+basePath: /DevGui/MyProject/1.0.0
+tags:
+- name: user
+  description: ユーザー
+- name: work
+  description: 仕事の組織
+schemes:
+- https
+- http
+paths:
+  /user:
+    post:
+      tags:
+      - user
+      description: ユーザーの新規登録
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UserP'
+      responses:
+        default:
+          description: Created
+  /user/login:
+    get:
+      tags:
+      - user
+      description: ユーザーをシステムにログインします
+      produces:
+      - application/json
+      parameters:
+      - name: UserID
+        in: query
+        description: ユーザーID
+        required: true
+        type: integer
+      - name: password
+        in: query
+        description: パスワード
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              type: integer
+              format: int32
+              description: ユーザーが許可する1時間あたりの呼び出し
+            X-Expires-After:
+              type: string
+              format: date-time
+              description: トークンの有効期限が切れるUTCの日付
+          schema:
+            type: string
+        "400":
+          description: Invalid username/password supplied
+  /user/logout:
+    get:
+      tags:
+      - user
+      description: ユーザーセッションをログアウトします
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        default:
+          description: successful operation
+  /user/{UserID}:
+    get:
+      tags:
+      - user
+      description: カテゴリーの取得
+      produces:
+      - application/json
+      parameters:
+      - name: UserID
+        in: path
+        description: ユーザーID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/UserP'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFound'
+    put:
+      tags:
+      - user
+      description: カテゴリーの更新
+      parameters:
+      - name: UserID
+        in: path
+        description: ユーザーID
+        required: true
+        type: integer
+        format: int64
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/UserP'
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFound'
+    delete:
+      tags:
+      - user
+      description: カテゴリーの削除
+      parameters:
+      - name: UserID
+        in: path
+        description: ユーザーID
+        required: true
+        type: integer
+        format: int64
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Deleted'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFound'
+  /work:
+    post:
+      tags:
+      - work
+      description: 新しいタスクを追加する
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: ストアに追加する必要があるタスクオブジェクト
+        required: true
+        schema:
+          $ref: '#/definitions/Work'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Work'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/NotFound'
+  /work/{TaskID}:
+    get:
+      tags:
+      - work
+      description: IDでタスクを検索
+      produces:
+      - application/json
+      parameters:
+      - name: TaskID
+        in: path
+        description: 返すタスクのID
+        required: true
+        type: string
+      responses:
+        "200":
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Work'
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Task not found
+    put:
+      tags:
+      - work
+      description: タスクを更新する
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: TaskID
+        in: path
+        description: 追加する必要があるタスクオブジェクト
+        required: true
+        type: string
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/Work'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Task not found
+        "405":
+          description: Validation exception
+    delete:
+      tags:
+      - work
+      description: タスクを削除します
+      produces:
+      - application/json
+      parameters:
+      - name: TaskID
+        in: path
+        required: true
+        type: string
+      responses:
+        "400":
+          description: Invalid ID supplied
+        "404":
+          description: Task not found
+definitions:
+  UserP:
+    type: object
+    properties:
+      UserID:
+        type: integer
+        format: int64
+      username:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  NotFound:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 対象のレコードが見つかりません
+  Deleted:
+    type: object
+    properties:
+      message:
+        type: string
+        example: 対象のレコードを削除しました。
+  Work:
+    type: object
+    properties:
+      nameofcompany:
+        type: string
+        example: Proseeds
+      TaskID:
+        type: string
+        example: "0282"
+      Deadline:
+        type: string
+        example: "20200123"
+      ManagerID:
+        type: integer
+        example: 15
+      EmployeeID:
+        type: integer
+        example: 53
